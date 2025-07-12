@@ -37,31 +37,92 @@ export default function ModelList() {
     }
   };
 
+  const handleStar = (model) => {
+    // Implement star logic here
+  };
+
+  const handleUnstar = (model) => {
+    // Implement unstar logic here
+  };
+
+  const handleUpload = (model) => {
+    // Implement upload logic here
+  };
+
   return (
     <Box p={5} shadow="md" borderWidth="1px" borderRadius="lg" width="100%">
       <Heading size="md" mb={4}>Model Versions</Heading>
-      <TableContainer>
-        <Table variant="simple">
-          <Thead>
-            <Tr>
-              <Th>Version</Th>
-              <Th>Created At</Th>
-              <Th>Files</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {models.map((model, index) => (
-              <Tr key={index}>
-                <Td>
-                  <Badge colorScheme="green">{model.version}</Badge>
-                </Td>
-                <Td>{new Date(model.created_at).toLocaleString()}</Td>
-                <Td>{model.filename}</Td>
-              </Tr>
-            ))}
-          </Tbody>
-        </Table>
-      </TableContainer>
+      <Grid container spacing={3}>
+        {models.map((model) => (
+          <Grid item xs={12} md={6} key={model.id}>
+            <Card>
+              <CardContent>
+                <Grid container spacing={2}>
+                  {/* Model Header */}
+                  <Grid item xs={12}>
+                    <Typography variant="h6" gutterBottom>
+                      {model.name}
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary">
+                      {model.description}
+                    </Typography>
+                  </Grid>
+
+                  {/* Model Stats */}
+                  <Grid item xs={12}>
+                    <Box display="flex" justifyContent="space-between" alignItems="center">
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <Badge badgeContent={model.stars} color="primary">
+                          <StarBorderIcon />
+                        </Badge>
+                        <Typography variant="body2">
+                          {model.stars} stars
+                        </Typography>
+                      </Box>
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <CodeIcon />
+                        <Typography variant="body2">
+                          {model.versions.length} versions
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Grid>
+
+                  {/* Action Buttons */}
+                  <Grid item xs={12}>
+                    <Box display="flex" justifyContent="space-between" alignItems="center">
+                      <Box display="flex" gap={1}>
+                        <Tooltip title="View Analytics">
+                          <IconButton onClick={() => window.location.href=`/model/${model.id}/analytics`}>
+                            <AnalyticsIcon />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title={model.starred ? "Unstar" : "Star"}>
+                          <IconButton onClick={() => model.starred ? handleUnstar(model) : handleStar(model)}>
+                            {model.starred ? <StarIcon /> : <StarBorderIcon />}
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="View on GitHub">
+                          <IconButton href={model.githubUrl} target="_blank">
+                            <GitHubIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </Box>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => handleUpload(model)}
+                      >
+                        Upload New Version
+                      </Button>
+                    </Box>
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
     </Box>
   );
 }

@@ -5,15 +5,18 @@ and easy deployment capabilities. It supports various ML frameworks including Te
 
 ## Features
 - Git-like CLI for model version control
-- Modern web interface for visual interaction
+- GitHub-style web interface with analytics
 - Upload and version control ML models
 - Track model versions with timestamps
 - List all available model versions
-- Get detailed information about specific versions
-- Built on DVC for robust version control
+- Detailed model analytics and performance tracking
+- Star/unstar models
+- GitHub integration
 - Branching and tagging support for model versions
 - Remote repository support
 - Performance metrics tracking
+- Version comparison
+- Model statistics and metrics visualization
 
 ## Components
 
@@ -86,6 +89,10 @@ puf/
 ## Installation
 
 ```bash
+# Install from PyPI
+pip install puf-cli
+
+# Or install from source
 pip install .
 ```
 
@@ -110,6 +117,9 @@ puf tag v1.0
 
 # Push to remote
 puf push
+
+# View model analytics
+puf analytics model_name
 ```
     │   │   ├── ModelList.js
     │   │   ├── Navbar.js

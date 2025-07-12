@@ -8,14 +8,13 @@ import {
   Stack,
   Text,
   useColorModeValue,
-  Image,
   Container,
   Alert,
   AlertIcon,
-  useToast,
 } from '@chakra-ui/react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import Logo from '../components/Logo';
 
 export default function Login() {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
@@ -23,7 +22,6 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
-  const toast = useToast();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,12 +30,6 @@ export default function Login() {
 
     try {
       await login(credentials);
-      toast({
-        title: 'Welcome back!',
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-      });
       navigate('/');
     } catch (err) {
       setError(err.message || 'Failed to login');
@@ -55,12 +47,7 @@ export default function Login() {
     <Container maxW="lg" py={{ base: '12', md: '24' }} px={{ base: '0', sm: '8' }}>
       <Stack spacing="8">
         <Stack spacing="6" align="center">
-          <Image
-            src="https://www.shutterstock.com/image-vector/cute-corgi-cartoon-vector-icon-600nw-2150920279.jpg"
-            alt="Puf Logo"
-            boxSize="16"
-            objectFit="contain"
-          />
+          <Logo size="24" />
           <Stack spacing="3" textAlign="center">
             <Text fontSize="2xl" fontWeight="bold">Sign in to Puf 🐾</Text>
           </Stack>

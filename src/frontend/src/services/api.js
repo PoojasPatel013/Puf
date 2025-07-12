@@ -2,33 +2,36 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
+const api = axios.create({
+  baseURL: `${API_URL}/api`,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Add auth token to requests
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('mvc_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 class AuthService {
   async login(credentials) {
     try {
-      const formData = new URLSearchParams();
-      formData.append('username', credentials.username);
-      formData.append('password', credentials.password);
-
-      const response = await fetch(`${API_URL}/token`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: formData,
+      const response = await api.post('/login', {
+        username: credentials.username,
+        password: credentials.password,
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        console.error('Login error:', error);
-        throw new Error(error.detail || error.message || 'Failed to login');
-      }
-
-      const data = await response.json();
-      localStorage.setItem('mvc_token', data.access_token);
-      localStorage.setItem('mvc_user', JSON.stringify(data.user));
-      return data.user;
+      localStorage.setItem('mvc_token', response.data.access_token);
+      localStorage.setItem('mvc_user', JSON.stringify(response.data.user));
+      return response.data.user;
     } catch (error) {
-      throw error;
+      console.error('Login error:', error.response?.data);
+      throw new Error(error.response?.data?.detail || 'Failed to login');
     }
   }
 
@@ -37,52 +40,23 @@ class AuthService {
       // Remove confirmPassword if it exists
       const { confirmPassword, ...userDataToSend } = userData;
       
-      const response = await fetch(`${API_URL}/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userDataToSend),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        console.error('Registration error:', error);
-        throw new Error(error.detail || error.message || 'Failed to register');
-      }
-
-      const data = await response.json();
-      localStorage.setItem('mvc_token', data.access_token);
-      localStorage.setItem('mvc_user', JSON.stringify(data.user));
-      return data.user;
+      const response = await api.post('/register', userDataToSend);
+      localStorage.setItem('mvc_token', response.data.access_token);
+      localStorage.setItem('mvc_user', JSON.stringify(response.data.user));
+      return response.data.user;
     } catch (error) {
-      throw error;
+      console.error('Registration error:', error.response?.data);
+      throw new Error(error.response?.data?.detail || 'Failed to register');
     }
   }
 
   async getCurrentUser() {
     try {
-      const token = localStorage.getItem('mvc_token');
-      if (!token) {
-        return null;
-      }
-
-      const response = await fetch(`${API_URL}/me`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        this.logout();
-        return null;
-      }
-
-      const data = await response.json();
-      return data.user;
+      const response = await api.get('/me');
+      return response.data;
     } catch (error) {
-      this.logout();
-      return null;
+      console.error('Get current user error:', error.response?.data);
+      throw new Error(error.response?.data?.detail || 'Failed to get user info');
     }
   }
 
@@ -97,22 +71,13 @@ export const authService = new AuthService();
 // Model services
 export const modelService = {
   async getModels() {
-    const response = await fetch(`${API_URL}/models`, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('mvc_token')}`,
-      },
-    });
-    return await response.json();
+    const response = await api.get('/models');
+    return await response.data;
   },
 
   async getModelVersions(modelId) {
-    const response = await fetch(`${API_URL}/models/${modelId}/versions`, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('mvc_token')}`,
-      },
-    });
-    return await response.json();
-    return response.data;
+    const response = await api.get(`/models/${modelId}/versions`);
+    return await response.data;
   },
 
   async uploadModel(formData) {
@@ -134,3 +99,5 @@ export const modelService = {
     return response.data;
   },
 };
+
+export default api;

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = process.env.VITE_API_URL || 'http://localhost:8000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 const modelService = {
   async uploadModel(file, version, description) {
@@ -9,7 +9,7 @@ const modelService = {
     if (version) formData.append('version', version);
     if (description) formData.append('description', description);
 
-    const response = await axios.post(`${API_URL}/models/upload`, formData, {
+    const response = await axios.post(`${API_URL}/api/models/upload`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -18,22 +18,32 @@ const modelService = {
   },
 
   async getModels() {
-    const response = await axios.get(`${API_URL}/models`);
+    const response = await axios.get(`${API_URL}/api/models`);
     return response.data;
   },
 
   async getModel(version) {
-    const response = await axios.get(`${API_URL}/models/${version}`);
+    const response = await axios.get(`${API_URL}/api/models/${version}`);
     return response.data;
   },
 
+  async listVersions() {
+    try {
+      const response = await axios.get(`${API_URL}/api/models`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching model versions:', error);
+      throw error;
+    }
+  },
+
   async deleteModel(version) {
-    const response = await axios.delete(`${API_URL}/models/${version}`);
+    const response = await axios.delete(`${API_URL}/api/models/${version}`);
     return response.data;
   },
 
   async compareVersions(version1, version2) {
-    const response = await axios.get(`${API_URL}/models/compare`, {
+    const response = await axios.get(`${API_URL}/api/models/compare`, {
       params: { v1: version1, v2: version2 },
     });
     return response.data;
@@ -42,7 +52,7 @@ const modelService = {
 
 // Add auth token to requests
 axios.interceptors.request.use((config) => {
-  const token = localStorage.getItem('access_token');
+  const token = localStorage.getItem('mvc_token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

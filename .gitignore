@@ -4,3 +4,7 @@ package-lock.json
 yarn.lock
 node_modules
 puf_cli.egg-info/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd

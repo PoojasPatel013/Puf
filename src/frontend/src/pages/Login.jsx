@@ -8,7 +8,7 @@ import {
   Stack,
   Text,
   useColorModeValue,
-  Icon,
+  Image,
   Container,
   Alert,
   AlertIcon,
@@ -16,14 +16,6 @@ import {
 } from '@chakra-ui/react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-
-const DogLogo = () => (
-  <svg width="64" height="64" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M16 2C8.268 2 2 8.268 2 16s6.268 14 14 14 14-6.268 14-14S23.732 2 16 2zm0 25.2c-6.188 0-11.2-5.012-11.2-11.2S9.812 4.8 16 4.8 27.2 9.812 27.2 16 22.188 27.2 16 27.2z" fill="currentColor"/>
-    <path d="M22 12c-1.105 0-2 .895-2 2s.895 2 2 2 2-.895 2-2-.895-2-2-2zm-8 0c-1.105 0-2 .895-2 2s.895 2 2 2 2-.895 2-2-.895-2-2-2z" fill="currentColor"/>
-    <path d="M16 20c-2.761 0-5 1.79-5 4h10c0-2.21-2.239-4-5-4z" fill="currentColor"/>
-  </svg>
-);
 
 export default function Login() {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
@@ -63,10 +55,11 @@ export default function Login() {
     <Container maxW="lg" py={{ base: '12', md: '24' }} px={{ base: '0', sm: '8' }}>
       <Stack spacing="8">
         <Stack spacing="6" align="center">
-          <Icon
-            as={DogLogo}
+          <Image
+            src="https://www.shutterstock.com/image-vector/cute-corgi-cartoon-vector-icon-600nw-2150920279.jpg"
+            alt="Puf Logo"
             boxSize="16"
-            color={useColorModeValue('github.800', 'white')}
+            objectFit="contain"
           />
           <Stack spacing="3" textAlign="center">
             <Text fontSize="2xl" fontWeight="bold">Sign in to Puf 🐾</Text>

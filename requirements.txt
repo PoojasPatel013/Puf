@@ -1,14 +1,21 @@
-fastapi
-uvicorn
-dvc
-python-multipart
-pydantic
-python-dotenv
-sqlalchemy
-passlib[bcrypt]
-python-jose[cryptography]
-click
-requests
-motor
-pymongo[srv]
-pydantic-settings
+# Core Application Dependencies
+fastapi>=0.104.1,<0.105.0  # Compatible with uvicorn 0.24.0
+uvicorn>=0.24.0,<0.25.0    # Stable version with good performance
+dvc>=3.61.0,<4.0.0         # Latest stable version
+python-multipart>=0.0.20,<0.1.0  # Compatible with FastAPI
+pydantic>=1.10.12,<1.11.0  # Stable version that works with most packages
+python-dotenv>=1.0.0,<2.0.0  # Environment variable management
+sqlalchemy>=2.0.23,<2.1.0  # Latest stable version
+passlib[bcrypt]>=1.7.4,<1.8.0  # Stable version
+python-jose[cryptography]>=3.5.0,<4.0.0  # Latest stable version
+click>=8.1.7,<9.0.0        # Stable version
+requests>=2.31.0,<3.0.0    # Latest stable version
+motor>=3.7.1,<4.0.0        # Latest stable version
+pymongo[srv]>=4.6.1,<5.0.0 # Latest stable version
+
+# Optional Development Tools (can be removed if not needed)
+pytest>=7.4.3,<8.0.0      # Testing framework
+pytest-cov>=4.1.0,<5.0.0  # Coverage reporting
+black>=23.11.0,<24.0.0    # Code formatter
+isort>=5.12.0,<6.0.0      # Import sorter
+flake8>=6.1.0,<7.0.0      # Linting

@@ -116,115 +116,12 @@ const AppWrapper = () => {
               <Settings />
             </ProtectedRoute>
           } />
+          <Route path="/profile/:username" element={<Profile />} />
+          <Route path="/repos/:owner/:repo" element={<ModelDetail />} />
         </Routes>
       </Router>
     </ThemeProvider>
   );
 };
-const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <App />,
-    errorElement: <ErrorFallback />,
-    children: [
-      {
-        path: 'login',
-        element: (
-          <AuthRoute>
-            <Login />
-          </AuthRoute>
-        ),
-      },
-      {
-        path: 'register',
-        element: (
-          <AuthRoute>
-            <Register />
-          </AuthRoute>
-        ),
-      },
-      {
-        path: 'dashboard',
-        element: (
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'models',
-        element: (
-          <ProtectedRoute>
-            <Models />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'models/:id',
-        element: (
-          <ProtectedRoute>
-            <ModelDetail />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'experiments',
-        element: (
-          <ProtectedRoute>
-            <Experiments />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'profile',
-        element: (
-          <ProtectedRoute>
-            <Profile />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'repository/:id',
-        element: (
-          <ProtectedRoute>
-            <Repository />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'repository/:id/versions',
-        element: (
-          <ProtectedRoute>
-            <ModelVersions />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'repository/:id/compare',
-        element: (
-          <ProtectedRoute>
-            <Compare />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'repository/:id/issues',
-        element: (
-          <ProtectedRoute>
-            <Issues />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'repository/:id/settings',
-        element: (
-          <ProtectedRoute>
-            <Settings />
-          </ProtectedRoute>
-        ),
-      },
-    ],
-  },
-]);
 
-export default router;
+export default AppWrapper;

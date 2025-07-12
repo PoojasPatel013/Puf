@@ -32,8 +32,9 @@ import { modelService } from '../services/api';
 import FileExplorer from './repository/FileExplorer';
 import ReadmeViewer from './repository/ReadmeViewer';
 import PerformanceMetrics from './repository/PerformanceMetrics';
+import Repository from './Repository';
 
-export default function Repository() {
+export default function RepositoryPage() {
   const { owner, name } = useParams();
   const navigate = useNavigate();
   const toast = useToast();
@@ -187,6 +188,7 @@ export default function Repository() {
             <Tab>README</Tab>
             <Tab>Performance</Tab>
             <Tab>Versions</Tab>
+            <Tab>Repository</Tab>
           </TabList>
 
           <TabPanels>
@@ -227,6 +229,16 @@ export default function Repository() {
                   ))}
                 </Tbody>
               </Table>
+            </TabPanel>
+            <TabPanel>
+              <Repository repo={{
+                name: repo.name,
+                description: repo.description,
+                language: repo.language,
+                branches: repo.branches,
+                views: repo.views,
+                starred: starred,
+              }} />
             </TabPanel>
           </TabPanels>
         </Tabs>

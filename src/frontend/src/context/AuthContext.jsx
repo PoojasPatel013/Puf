@@ -1,59 +1,77 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { authService } from '../services/api';
+import { createContext, useContext, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const AuthContext = createContext(null);
 
-export const AuthProvider = ({ children }) => {
+export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const initAuth = async () => {
-      try {
-        const currentUser = await authService.getCurrentUser();
-        setUser(currentUser);
-      } catch (error) {
-        console.error('Error initializing auth:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    initAuth();
+    const token = localStorage.getItem('token');
+    if (token) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      checkAuth();
+    } else {
+      setLoading(false);
+    }
   }, []);
 
-  const login = async (credentials) => {
-    const user = await authService.login(credentials);
-    setUser(user);
-    return user;
+  const checkAuth = async () => {
+    try {
+      const response = await axios.get('/api/me');
+      setUser(response.data);
+    } catch (error) {
+      localStorage.removeItem('token');
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const register = async (userData) => {
-    const user = await authService.register(userData);
-    setUser(user);
-    return user;
+  const login = async (username, password) => {
+    try {
+      const response = await axios.post('/api/login', {
+        username,
+        password,
+      });
+      const { access_token } = response.data;
+      localStorage.setItem('token', access_token);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+      setUser(response.data.user);
+      navigate('/dashboard');
+    } catch (error) {
+      throw new Error('Login failed');
+    }
   };
 
-  const logout = async () => {
-    await authService.logout();
+  const logout = () => {
+    localStorage.removeItem('token');
+    delete axios.defaults.headers.common['Authorization'];
     setUser(null);
+    navigate('/login');
   };
 
-  if (loading) {
-    return null; // or a loading spinner
-  }
+  const value = {
+    user,
+    loading,
+    login,
+    logout,
+  };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
-};
+}
 
-export const useAuth = () => {
+export function useAuth() {
   const context = useContext(AuthContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-};
+}

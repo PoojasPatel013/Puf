@@ -12,11 +12,6 @@ import {
   Button,
   useToast,
   Badge,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  IconButton,
   Flex,
   Input,
   Modal,
@@ -31,6 +26,8 @@ import {
   Textarea,
   useDisclosure,
   Icon,
+  HStack,
+  Text,
 } from '@chakra-ui/react';
 import { FiUpload, FiMoreVertical, FiDownload, FiGitBranch } from 'react-icons/fi';
 import { Link, useNavigate } from 'react-router-dom';
@@ -47,20 +44,20 @@ export default function Models() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchModels();
+    loadModels();
   }, []);
 
-  const fetchModels = async () => {
+  const loadModels = async () => {
     try {
-      const data = await modelService.listVersions();
+      const data = await modelService.getModels();
       setModels(data);
     } catch (error) {
-      console.error('Error fetching models:', error);
       toast({
-        title: 'Error fetching models',
-        description: error.message,
+        title: 'Error',
+        description: 'Failed to load models',
         status: 'error',
-        duration: 5000,
+        duration: 3000,
+        isClosable: true,
       });
     }
   };
@@ -72,30 +69,38 @@ export default function Models() {
   const handleUpload = async () => {
     if (!selectedFile) {
       toast({
-        title: 'No file selected',
-        status: 'warning',
+        title: 'Error',
+        description: 'Please select a file to upload',
+        status: 'error',
         duration: 3000,
+        isClosable: true,
       });
       return;
     }
 
+    setIsUploading(true);
     try {
-      setIsUploading(true);
-      await modelService.uploadModel(selectedFile, version, description);
+      const result = await modelService.uploadModel(
+        selectedFile,
+        version || undefined,
+        description || undefined
+      );
       toast({
-        title: 'Model uploaded successfully',
+        title: 'Success',
+        description: 'Model uploaded successfully',
         status: 'success',
         duration: 3000,
+        isClosable: true,
       });
       onClose();
-      fetchModels();
+      loadModels();
     } catch (error) {
-      console.error('Error uploading model:', error);
       toast({
-        title: 'Error uploading model',
-        description: error.message,
+        title: 'Error',
+        description: error.response?.data?.detail || 'Failed to upload model',
         status: 'error',
-        duration: 5000,
+        duration: 3000,
+        isClosable: true,
       });
     } finally {
       setIsUploading(false);
@@ -107,6 +112,7 @@ export default function Models() {
   };
 
   const getStatusColor = (status) => {
+    if (!status) return 'gray';
     const colors = {
       active: 'green',
       pending: 'yellow',
@@ -140,43 +146,36 @@ export default function Models() {
           </Tr>
         </Thead>
         <Tbody>
-          {models.map((model) => (
+          {models?.map((model) => (
             <Tr key={model.version}>
               <Td fontWeight="medium">{model.version}</Td>
-              <Td>{model.description}</Td>
-              <Td>{new Date(model.created_at).toLocaleString()}</Td>
+              <Td>{model.description || 'N/A'}</Td>
+              <Td>{model.created_at ? new Date(model.created_at).toLocaleString() : 'N/A'}</Td>
               <Td>
                 <Badge colorScheme={getStatusColor(model.status)}>
-                  {model.status}
+                  {model.status || 'N/A'}
                 </Badge>
               </Td>
-              <Td>{model.accuracy ? `${(model.accuracy * 100).toFixed(2)}%` : 'N/A'}</Td>
+              <Td>{model.accuracy || 'N/A'}</Td>
               <Td>
-                <Menu>
-                  <MenuButton
-                    as={IconButton}
-                    icon={<Icon as={FiMoreVertical} />}
-                    variant="ghost"
+                <HStack spacing={2}>
+                  <Button
                     size="sm"
-                  />
-                  <MenuList>
-                    <MenuItem
-                      icon={<Icon as={FiDownload} />}
-                      onClick={() => window.open(`/api/models/${model.version}/download`)}
-                    >
-                      Download
-                    </MenuItem>
-                    <MenuItem
-                      icon={<Icon as={FiGitBranch} />}
-                      onClick={() => handleCompare(model.version, models[0].version)}
-                    >
-                      Compare with Latest
-                    </MenuItem>
-                  </MenuList>
-                </Menu>
+                    colorScheme="blue"
+                    onClick={() => handleCompare(model.version, model.version)}
+                  >
+                    Compare
+                  </Button>
+                </HStack>
               </Td>
             </Tr>
-          ))}
+          )) || (
+            <Tr>
+              <Td colSpan={6} textAlign="center">
+                <Text>No models found</Text>
+              </Td>
+            </Tr>
+          )}
         </Tbody>
       </Table>
 
@@ -188,27 +187,31 @@ export default function Models() {
           <ModalBody>
             <FormControl mb={4}>
               <FormLabel>Model File</FormLabel>
-              <Input type="file" onChange={handleFileChange} />
+              <Input
+                type="file"
+                onChange={handleFileChange}
+                accept=".h5,.pt,.pth,.pkl,.pb"
+              />
             </FormControl>
             <FormControl mb={4}>
-              <FormLabel>Version</FormLabel>
+              <FormLabel>Version (Optional)</FormLabel>
               <Input
-                placeholder="e.g., v1.0.0"
                 value={version}
                 onChange={(e) => setVersion(e.target.value)}
+                placeholder="Auto-generated if not provided"
               />
             </FormControl>
             <FormControl>
-              <FormLabel>Description</FormLabel>
+              <FormLabel>Description (Optional)</FormLabel>
               <Textarea
-                placeholder="What's new in this version?"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
+                placeholder="Describe this model version"
               />
             </FormControl>
           </ModalBody>
           <ModalFooter>
-            <Button variant="ghost" mr={3} onClick={onClose}>
+            <Button mr={3} onClick={onClose}>
               Cancel
             </Button>
             <Button

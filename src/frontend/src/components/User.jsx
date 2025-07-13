@@ -1,4 +1,4 @@
-import { Box, Avatar, Typography, Badge, Button } from '@chakra-ui/react';
+import { Box, Avatar, Text, Badge, Button } from '@chakra-ui/react';
 import { FaGithub, FaGit, FaUserFriends } from 'react-icons/fa';
 
 const User = ({ user }) => {
@@ -7,12 +7,12 @@ const User = ({ user }) => {
       <Box display="flex" alignItems="center" mb={4}>
         <Avatar size="xl" name={user.username} src={user.avatar_url} />
         <Box ml={4}>
-          <Typography fontSize="2xl" fontWeight="bold">
+          <Text fontSize="2xl" fontWeight="bold">
             {user.username}
-          </Typography>
-          <Typography color="gray.600">
+          </Text>
+          <Text color="gray.600">
             {user.email}
-          </Typography>
+          </Text>
         </Box>
       </Box>
 
@@ -30,7 +30,7 @@ const User = ({ user }) => {
         </Button>
       </Box>
 
-      <Typography mb={4}>{user.bio}</Typography>
+      <Text mb={4}>{user.bio}</Text>
 
       <Box display="flex" flexWrap="wrap" gap={2}>
         {user.skills?.map((skill, index) => (

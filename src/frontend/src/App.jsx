@@ -1,73 +1,53 @@
 import React from 'react';
-import { Box, Flex, useColorModeValue } from '@chakra-ui/react';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from './context/AuthContext';
-import Navbar from './components/Navbar';
-import Sidebar from './components/Sidebar';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { ChakraProvider, Box, Flex, useColorModeValue } from '@chakra-ui/react';
+import { AuthProvider } from './context/AuthContext';
+import theme from './theme';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Models from './pages/Models';
 import ModelDetail from './pages/ModelDetail';
+import Settings from './pages/Settings';
+import Profile from './pages/Profile';
+import Teams from './pages/Teams';
+import Repositories from './pages/Repositories';
+import Starred from './pages/Starred';
+import Navbar from './components/Navbar';
+import Sidebar from './components/Sidebar';
+import Models from './pages/Models';
 import Compare from './pages/Compare';
 import Experiments from './pages/Experiments';
-import Profile from './components/Profile';
-import './App.css';
 
-function AuthRoute({ children }) {
-  const { user } = useAuth();
-  return user ? <Navigate to="/dashboard" /> : children;
-}
-
-function ProtectedRoute({ children }) {
-  const { user } = useAuth();
-  return user ? children : <Navigate to="/login" />;
-}
-
-function Layout({ children }) {
-  const { user } = useAuth();
-  const bgColor = useColorModeValue('gray.50', 'gray.800');
-
+function App() {
   return (
-    <Box minH="100vh" bg={bgColor}>
-      {user && <Navbar />}
-      <Flex>
-        {user && <Sidebar />}
-        <Box flex="1" p={4} ml={user ? '64' : 0}>
-          {children}
+    <ChakraProvider theme={theme}>
+      <AuthProvider>
+        <Box minH="100vh" bg={useColorModeValue('gray.50', 'gray.800')}>
+          <Navbar />
+          <Flex>
+            <Sidebar />
+            <Box flex="1" p={4} ml="64">
+              <Routes>
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/models" element={<Models />} />
+                <Route path="/models/:version" element={<ModelDetail />} />
+                <Route path="/models/compare" element={<Compare />} />
+                <Route path="/experiments" element={<Experiments />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/teams/:teamName" element={<Teams />} />
+                <Route path="/repositories" element={<Repositories />} />
+                <Route path="/starred" element={<Starred />} />
+              </Routes>
+            </Box>
+          </Flex>
         </Box>
-      </Flex>
-    </Box>
+      </AuthProvider>
+    </ChakraProvider>
   );
 }
 
-export default function App() {
-  const location = useLocation();
-  const bgColor = useColorModeValue('gray.50', 'gray.800');
-  const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
-
-  if (isAuthPage) {
-    return (
-      <Box minH="100vh" bg={bgColor}>
-        <Routes>
-          <Route path="/login" element={<AuthRoute><Login /></AuthRoute>} />
-          <Route path="/register" element={<AuthRoute><Register /></AuthRoute>} />
-        </Routes>
-      </Box>
-    );
-  }
-
-  return (
-    <Layout>
-      <Routes>
-        <Route path="/" element={<Navigate to="/dashboard" />} />
-        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/models" element={<ProtectedRoute><Models /></ProtectedRoute>} />
-        <Route path="/models/:id" element={<ProtectedRoute><ModelDetail /></ProtectedRoute>} />
-        <Route path="/models/compare" element={<ProtectedRoute><Compare /></ProtectedRoute>} />
-        <Route path="/experiments" element={<ProtectedRoute><Experiments /></ProtectedRoute>} />
-        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-      </Routes>
-    </Layout>
-  );
-}
+export default App;

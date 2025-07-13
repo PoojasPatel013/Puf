@@ -31,9 +31,10 @@ import {
   ListItem,
   ListIcon,
   Link,
+  Center,
   Spinner
 } from '@chakra-ui/react';
-import { FiPackage, FiGitBranch, FiGitPullRequest, FiTerminal, FiCopy, FiCode, FiGithub, FiUpload, FiBookOpen, FiChevronRight } from 'react-icons/fi';
+import { FiPackage, FiGitBranch, FiGitPullRequest, FiTerminal, FiCopy, FiCode, FiGithub, FiUpload, FiBookOpen, FiChevronRight, FiStar, FiUsers, FiDownload } from 'react-icons/fi';
 import { Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { modelService } from '../services/modelService';
@@ -105,29 +106,111 @@ const StatCard = ({ title, stat, icon, helpText, isLoading = false }) => {
   );
 };
 
+const ModelCard = ({ model, onCompare }) => {
+  const { hasCopied, onCopy } = useClipboard(model.version);
+
+  return (
+    <Box
+      shadow="sm"
+      border="1px solid"
+      borderColor={useColorModeValue('gray.200', 'gray.700')}
+      rounded="lg"
+      p={4}
+      bg={useColorModeValue('white', 'github.800')}
+    >
+      <Flex justify="space-between" align="center" mb={3}>
+        <Box>
+          <Heading size="sm">{model.name}</Heading>
+          <Text color={useColorModeValue('gray.600', 'gray.400')} fontSize="sm">
+            {model.description}
+          </Text>
+        </Box>
+        <HStack spacing={2}>
+          <Button
+            size="sm"
+            colorScheme="blue"
+            leftIcon={<FiGitCompare />}
+            onClick={() => onCompare(model.version)}
+          >
+            Compare
+          </Button>
+          <Button
+            size="sm"
+            colorScheme="purple"
+            leftIcon={<FiDownload />}
+            as={RouterLink}
+            to={`/models/${model.version}/download`}
+          >
+            Download
+          </Button>
+        </HStack>
+      </Flex>
+
+      <HStack spacing={4}>
+        <HStack spacing={2}>
+          <Icon as={FiStar} color="yellow.500" />
+          <Text>{model.stars || 0}</Text>
+        </HStack>
+        <HStack spacing={2}>
+          <Icon as={FiUsers} />
+          <Text>{model.contributors || 1}</Text>
+        </HStack>
+        <HStack spacing={2}>
+          <Icon as={FiDownload} />
+          <Text>{model.downloads || 0}</Text>
+        </HStack>
+      </HStack>
+
+      <Divider my={4} />
+
+      <HStack spacing={4}>
+        <Button
+          size="sm"
+          colorScheme="gray"
+          leftIcon={<FiCopy />}
+          onClick={onCopy}
+        >
+          Copy Version
+        </Button>
+        <Button
+          size="sm"
+          colorScheme="blue"
+          leftIcon={<FiGitPullRequest />}
+          as={RouterLink}
+          to={`/models/${model.version}/pr`}
+        >
+          Create PR
+        </Button>
+      </HStack>
+    </Box>
+  );
+};
+
 export default function Dashboard() {
   const chartRef = useRef(null);
   const { user } = useAuth();
-  const { hasCopied: hasCopiedInit, onCopy: onCopyInit } = useClipboard('pip install puf-cli');
   const [stats, setStats] = useState({
     modelVersions: 0,
     pullRequests: 0,
     modelSize: 0,
     loading: true
   });
+  const [models, setModels] = useState([]);
+  const [selectedModel, setSelectedModel] = useState(null);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const versions = await modelService.listVersions();
+        const versions = await modelService.getModels();
         const totalSize = versions.reduce((sum, version) => sum + (version.size || 0), 0);
         
         setStats({
           modelVersions: versions.length,
-          pullRequests: 0,
+          pullRequests: versions.reduce((sum, v) => sum + (v.pullRequests?.length || 0), 0),
           modelSize: totalSize / 1024 / 1024 / 1024,
           loading: false
         });
+        setModels(versions);
       } catch (error) {
         console.error('Error fetching stats:', error);
         setStats(prev => ({ ...prev, loading: false }));
@@ -142,6 +225,19 @@ export default function Dashboard() {
       }
     };
   }, []);
+
+  const handleCompare = async (version) => {
+    if (selectedModel) {
+      try {
+        const comparison = await modelService.compareVersions(selectedModel, version);
+        console.log('Comparison result:', comparison);
+        // TODO: Show comparison results in a modal or new page
+      } catch (error) {
+        console.error('Error comparing versions:', error);
+      }
+    }
+    setSelectedModel(version);
+  };
 
   const chartData = {
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
@@ -177,12 +273,15 @@ export default function Dashboard() {
   return (
     <Container maxW="container.xl" py={5}>
       <Flex justify="space-between" align="center" mb={6}>
-        <Heading size="lg">Dashboard</Heading>
+        <Box>
+          <Logo size="16" />
+          <Heading size="lg" my={2}>Dashboard</Heading>
+        </Box>
         <Button
           as={RouterLink}
           to="/models/upload"
           colorScheme="blue"
-          leftIcon={<Icon as={FiUpload} />}
+          leftIcon={<FiUpload />}
         >
           Upload Model
         </Button>
@@ -200,7 +299,7 @@ export default function Dashboard() {
           title="Pull Requests"
           stat={stats.pullRequests}
           icon={FiGitPullRequest}
-          helpText="Coming soon"
+          helpText="Active pull requests"
           isLoading={stats.loading}
         />
         <StatCard
@@ -213,6 +312,19 @@ export default function Dashboard() {
       </SimpleGrid>
 
       <Box mb={8}>
+        <Heading size="md" mb={4}>Your Models</Heading>
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
+          {models.map((model) => (
+            <ModelCard
+              key={model.version}
+              model={model}
+              onCompare={handleCompare}
+            />
+          ))}
+        </SimpleGrid>
+      </Box>
+
+      <Box>
         <Heading size="md" mb={4}>Documentation</Heading>
         <Accordion allowMultiple>
           <AccordionItem>
@@ -234,7 +346,7 @@ export default function Dashboard() {
                   <Button
                     size="sm"
                     colorScheme="blue"
-                    onClick={onCopyInit}
+                    onClick={() => navigator.clipboard.writeText('pip install puf-cli')}
                     ml={2}
                   >
                     <Icon as={FiCopy} />

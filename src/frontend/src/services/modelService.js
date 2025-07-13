@@ -5,7 +5,11 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 const modelService = {
   async getModels() {
     try {
-      const response = await axios.get(`${API_URL}/api/models`);
+      const response = await axios.get(`${API_URL}/api/models`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('mvc_token')}`
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('Error fetching models:', error);
@@ -15,7 +19,11 @@ const modelService = {
 
   async getModel(version) {
     try {
-      const response = await axios.get(`${API_URL}/api/models/${version}`);
+      const response = await axios.get(`${API_URL}/api/models/${version}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('mvc_token')}`
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('Error fetching model:', error);
@@ -25,7 +33,11 @@ const modelService = {
 
   async getModelInfo(version) {
     try {
-      const response = await axios.get(`${API_URL}/api/models/${version}/info`);
+      const response = await axios.get(`${API_URL}/api/models/${version}/info`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('mvc_token')}`
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('Error fetching model info:', error);
@@ -35,10 +47,28 @@ const modelService = {
 
   async getModelMetrics(version) {
     try {
-      const response = await axios.get(`${API_URL}/api/models/${version}/metrics`);
+      const response = await axios.get(`${API_URL}/api/models/${version}/metrics`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('mvc_token')}`
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('Error fetching model metrics:', error);
+      throw error;
+    }
+  },
+
+  async getModelPerformance(version) {
+    try {
+      const response = await axios.get(`${API_URL}/api/models/${version}/performance`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('mvc_token')}`
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching model performance:', error);
       throw error;
     }
   },
@@ -53,7 +83,8 @@ const modelService = {
       const response = await axios.post(`${API_URL}/api/models/upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-        },
+          Authorization: `Bearer ${localStorage.getItem('mvc_token')}`
+        }
       });
       return response.data;
     } catch (error) {
@@ -64,7 +95,11 @@ const modelService = {
 
   async deleteModel(version) {
     try {
-      const response = await axios.delete(`${API_URL}/api/models/${version}`);
+      const response = await axios.delete(`${API_URL}/api/models/${version}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('mvc_token')}`
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('Error deleting model:', error);
@@ -74,8 +109,10 @@ const modelService = {
 
   async compareVersions(version1, version2) {
     try {
-      const response = await axios.get(`${API_URL}/api/models/compare`, {
-        params: { v1: version1, v2: version2 },
+      const response = await axios.get(`${API_URL}/api/models/compare/${version1}/${version2}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('mvc_token')}`
+        }
       });
       return response.data;
     } catch (error) {
@@ -89,6 +126,10 @@ const modelService = {
       const response = await axios.post(`${API_URL}/api/models/${version}/pull-requests`, {
         title,
         description
+      }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('mvc_token')}`
+        }
       });
       return response.data;
     } catch (error) {
@@ -99,7 +140,11 @@ const modelService = {
 
   async listPullRequests(version) {
     try {
-      const response = await axios.get(`${API_URL}/api/models/${version}/pull-requests`);
+      const response = await axios.get(`${API_URL}/api/models/${version}/pull-requests`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('mvc_token')}`
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('Error listing pull requests:', error);
@@ -109,7 +154,11 @@ const modelService = {
 
   async mergePullRequest(version, prId) {
     try {
-      const response = await axios.post(`${API_URL}/api/models/${version}/pull-requests/${prId}/merge`);
+      const response = await axios.post(`${API_URL}/api/models/${version}/pull-requests/${prId}/merge`, {}, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('mvc_token')}`
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('Error merging pull request:', error);
@@ -119,7 +168,11 @@ const modelService = {
 
   async getTeams() {
     try {
-      const response = await axios.get(`${API_URL}/api/teams`);
+      const response = await axios.get(`${API_URL}/api/teams`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('mvc_token')}`
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('Error fetching teams:', error);
@@ -129,7 +182,11 @@ const modelService = {
 
   async createTeam(name) {
     try {
-      const response = await axios.post(`${API_URL}/api/teams`, { name });
+      const response = await axios.post(`${API_URL}/api/teams`, { name }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('mvc_token')}`
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('Error creating team:', error);
@@ -139,7 +196,11 @@ const modelService = {
 
   async deleteTeam(teamId) {
     try {
-      const response = await axios.delete(`${API_URL}/api/teams/${teamId}`);
+      const response = await axios.delete(`${API_URL}/api/teams/${teamId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('mvc_token')}`
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('Error deleting team:', error);
@@ -149,7 +210,11 @@ const modelService = {
 
   async updateTeam(teamId, data) {
     try {
-      const response = await axios.put(`${API_URL}/api/teams/${teamId}`, data);
+      const response = await axios.put(`${API_URL}/api/teams/${teamId}`, data, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('mvc_token')}`
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('Error updating team:', error);
@@ -159,7 +224,11 @@ const modelService = {
 
   async getTeamMembers(teamId) {
     try {
-      const response = await axios.get(`${API_URL}/api/teams/${teamId}/members`);
+      const response = await axios.get(`${API_URL}/api/teams/${teamId}/members`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('mvc_token')}`
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('Error fetching team members:', error);
@@ -169,7 +238,11 @@ const modelService = {
 
   async addTeamMember(teamId, userId) {
     try {
-      const response = await axios.post(`${API_URL}/api/teams/${teamId}/members`, { userId });
+      const response = await axios.post(`${API_URL}/api/teams/${teamId}/members`, { userId }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('mvc_token')}`
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('Error adding team member:', error);
@@ -179,7 +252,11 @@ const modelService = {
 
   async removeTeamMember(teamId, userId) {
     try {
-      const response = await axios.delete(`${API_URL}/api/teams/${teamId}/members/${userId}`);
+      const response = await axios.delete(`${API_URL}/api/teams/${teamId}/members/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('mvc_token')}`
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('Error removing team member:', error);
@@ -189,7 +266,11 @@ const modelService = {
 
   async getRepositories() {
     try {
-      const response = await axios.get(`${API_URL}/api/repositories`);
+      const response = await axios.get(`${API_URL}/api/repositories`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('mvc_token')}`
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('Error fetching repositories:', error);
@@ -199,7 +280,11 @@ const modelService = {
 
   async createRepository(name) {
     try {
-      const response = await axios.post(`${API_URL}/api/repositories`, { name });
+      const response = await axios.post(`${API_URL}/api/repositories`, { name }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('mvc_token')}`
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('Error creating repository:', error);
@@ -209,7 +294,11 @@ const modelService = {
 
   async deleteRepository(repoId) {
     try {
-      const response = await axios.delete(`${API_URL}/api/repositories/${repoId}`);
+      const response = await axios.delete(`${API_URL}/api/repositories/${repoId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('mvc_token')}`
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('Error deleting repository:', error);
@@ -219,7 +308,11 @@ const modelService = {
 
   async getRepository(repoName) {
     try {
-      const response = await axios.get(`${API_URL}/api/repositories/${repoName}`);
+      const response = await axios.get(`${API_URL}/api/repositories/${repoName}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('mvc_token')}`
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('Error fetching repository:', error);
@@ -229,7 +322,11 @@ const modelService = {
 
   async updateRepository(repoId, data) {
     try {
-      const response = await axios.put(`${API_URL}/api/repositories/${repoId}`, data);
+      const response = await axios.put(`${API_URL}/api/repositories/${repoId}`, data, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('mvc_token')}`
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('Error updating repository:', error);
@@ -239,7 +336,11 @@ const modelService = {
 
   async getRepositoryModels(repoName) {
     try {
-      const response = await axios.get(`${API_URL}/api/repositories/${repoName}/models`);
+      const response = await axios.get(`${API_URL}/api/repositories/${repoName}/models`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('mvc_token')}`
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('Error fetching repository models:', error);
@@ -249,7 +350,11 @@ const modelService = {
 
   async addStar(repoName) {
     try {
-      const response = await axios.post(`${API_URL}/api/repositories/${repoName}/star`);
+      const response = await axios.post(`${API_URL}/api/repositories/${repoName}/star`, {}, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('mvc_token')}`
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('Error adding star:', error);
@@ -259,7 +364,11 @@ const modelService = {
 
   async removeStar(repoName) {
     try {
-      const response = await axios.delete(`${API_URL}/api/repositories/${repoName}/star`);
+      const response = await axios.delete(`${API_URL}/api/repositories/${repoName}/star`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('mvc_token')}`
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('Error removing star:', error);
@@ -269,7 +378,11 @@ const modelService = {
 
   async getStarredItems() {
     try {
-      const response = await axios.get(`${API_URL}/api/starred`);
+      const response = await axios.get(`${API_URL}/api/starred`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('mvc_token')}`
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('Error fetching starred items:', error);
@@ -279,7 +392,11 @@ const modelService = {
 
   async starRepository(repoName) {
     try {
-      const response = await axios.post(`${API_URL}/api/repositories/${repoName}/star`);
+      const response = await axios.post(`${API_URL}/api/repositories/${repoName}/star`, {}, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('mvc_token')}`
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('Error starring repository:', error);
@@ -289,7 +406,11 @@ const modelService = {
 
   async unstarRepository(repoName) {
     try {
-      const response = await axios.delete(`${API_URL}/api/repositories/${repoName}/star`);
+      const response = await axios.delete(`${API_URL}/api/repositories/${repoName}/star`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('mvc_token')}`
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('Error unstarring repository:', error);
@@ -299,7 +420,11 @@ const modelService = {
 
   async starModel(modelId) {
     try {
-      const response = await axios.post(`${API_URL}/api/models/${modelId}/star`);
+      const response = await axios.post(`${API_URL}/api/models/${modelId}/star`, {}, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('mvc_token')}`
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('Error starring model:', error);
@@ -309,7 +434,11 @@ const modelService = {
 
   async unstarModel(modelId) {
     try {
-      const response = await axios.delete(`${API_URL}/api/models/${modelId}/star`);
+      const response = await axios.delete(`${API_URL}/api/models/${modelId}/star`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('mvc_token')}`
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('Error unstarring model:', error);
@@ -319,7 +448,11 @@ const modelService = {
 
   async isStarred(type, id) {
     try {
-      const response = await axios.get(`${API_URL}/api/starred/${type}/${id}`);
+      const response = await axios.get(`${API_URL}/api/starred/${type}/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('mvc_token')}`
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('Error checking star status:', error);
@@ -328,13 +461,4 @@ const modelService = {
   }
 };
 
-// Add auth token to requests
-axios.interceptors.request.use((config) => {
-  const token = localStorage.getItem('mvc_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-export { modelService };
+export default modelService;

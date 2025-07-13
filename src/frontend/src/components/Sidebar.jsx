@@ -21,6 +21,7 @@ import {
   FiAlertCircle,
   FiStar,
   FiUsers,
+  FiGitMerge,
 } from 'react-icons/fi';
 
 export default function Sidebar() {
@@ -172,6 +173,13 @@ export default function Sidebar() {
           </NavItem>
           <NavItem icon={FiGitBranch} to="/versions" count={3}>
             Versions
+          </NavItem>
+        </VStack>
+
+        {/* Version Control */}
+        <VStack spacing="1" align="stretch">
+          <NavItem icon={FiGitMerge} to="/version-control">
+            Version Control
           </NavItem>
         </VStack>
 

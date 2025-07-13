@@ -22,7 +22,7 @@ import {
 } from '@chakra-ui/react';
 import { useSearchParams } from 'react-router-dom';
 import { Line } from 'react-chartjs-2';
-import { modelService } from '../services/modelService';
+import modelService from '../services/modelService';
 
 export default function Compare() {
   const [searchParams] = useSearchParams();

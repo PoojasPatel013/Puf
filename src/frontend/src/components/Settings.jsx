@@ -31,7 +31,7 @@ import {
   FiGitBranch,
   FiAlertTriangle,
 } from 'react-icons/fi';
-import { modelService } from '../services/api';
+import modelService from '../services/api';
 
 export default function Settings() {
   const { owner, name } = useParams();

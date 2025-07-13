@@ -33,7 +33,7 @@ import {
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiDownload, FiGitBranch, FiActivity } from 'react-icons/fi';
 import { Line } from 'react-chartjs-2';
-import { modelService } from '../services/modelService';
+import modelService from '../services/modelService';
 
 export default function ModelDetail() {
   const { id } = useParams();

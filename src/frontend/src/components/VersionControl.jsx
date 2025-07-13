@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -12,25 +12,41 @@ import {
   AlertIcon,
   AlertTitle,
   AlertDescription,
-  useToast
+  useToast,
+  FormControl,
+  FormLabel,
+  FormHelperText,
+  Textarea,
+  Link,
+  Badge,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure
 } from '@chakra-ui/react';
-import { useAuth } from '../context/AuthContext';
-import cliService from '../services/cliService';
 
 export default function VersionControl() {
-  const { user } = useAuth();
-  const [commandOutput, setCommandOutput] = useState('');
-  const [currentBranch, setCurrentBranch] = useState('');
-  const [newBranchName, setNewBranchName] = useState('');
-  const [commitMessage, setCommitMessage] = useState('');
-  const [loading, setLoading] = useState(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
+  const [command, setCommand] = useState('');
+  const [commandOutput, setCommandOutput] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleCommand = async (command) => {
+  const handleCommand = async () => {
     try {
       setLoading(true);
-      const result = await cliService.executeCommand(command);
-      setCommandOutput(result.stdout || '');
+      // In a real implementation, you would execute this command in the user's terminal
+      // This is just a placeholder for demonstration
+      const result = {
+        stdout: `This would execute: ${command}`,
+        stderr: '',
+        returncode: 0
+      };
+      
+      setCommandOutput(result.stdout);
       if (result.stderr) {
         toast({
           title: 'Error',
@@ -42,12 +58,13 @@ export default function VersionControl() {
       } else {
         toast({
           title: 'Success',
-          description: 'Command executed successfully',
+          description: 'Command would be executed',
           status: 'success',
           duration: 3000,
           isClosable: true,
         });
       }
+      onClose();
     } catch (error) {
       toast({
         title: 'Error',
@@ -61,144 +78,129 @@ export default function VersionControl() {
     }
   };
 
-  const handleInit = async () => {
-    await handleCommand('puf init');
-  };
-
-  const handleCommit = async () => {
-    if (!commitMessage.trim()) {
-      toast({
-        title: 'Error',
-        description: 'Please enter a commit message',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
-      return;
-    }
-    await handleCommand(`puf commit -m "${commitMessage}"`);
-  };
-
-  const handlePush = async () => {
-    await handleCommand('puf push');
-  };
-
-  const handlePull = async () => {
-    await handleCommand('puf pull');
-  };
-
-  const handleCreateBranch = async () => {
-    if (!newBranchName.trim()) {
-      toast({
-        title: 'Error',
-        description: 'Please enter a branch name',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
-      return;
-    }
-    await handleCommand(`puf branch ${newBranchName}`);
-  };
-
-  const handleCheckout = async () => {
-    if (!currentBranch) {
-      toast({
-        title: 'Error',
-        description: 'Please select a branch',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
-      return;
-    }
-    await handleCommand(`puf checkout ${currentBranch}`);
-  };
-
   return (
     <Box p={4} borderWidth="1px" borderRadius="lg">
       <VStack spacing={4} align="stretch">
-        <HStack spacing={2}>
+        <Box>
+          <Text fontSize="2xl" fontWeight="bold" mb={4}>
+            Puf Version Control
+          </Text>
+          <Text mb={4}>
+            Puf is a version control system for machine learning models. Use this UI to manage your Puf repositories.
+          </Text>
+        </Box>
+
+        <Box>
+          <Text fontSize="lg" fontWeight="bold" mb={2}>
+            Quick Actions
+          </Text>
+          <HStack spacing={2}>
+            <Button
+              colorScheme="blue"
+              onClick={() => setCommand('puf init')}
+              onClickCapture={onOpen}
+            >
+              Initialize Repository
+            </Button>
+            <Button
+              colorScheme="green"
+              onClick={() => setCommand('puf status')}
+              onClickCapture={onOpen}
+            >
+              View Status
+            </Button>
+            <Button
+              colorScheme="purple"
+              onClick={() => setCommand('puf log')}
+              onClickCapture={onOpen}
+            >
+              View History
+            </Button>
+          </HStack>
+        </Box>
+
+        <Box>
+          <Text fontSize="lg" fontWeight="bold" mb={2}>
+            Run Command
+          </Text>
           <Button
             colorScheme="blue"
-            onClick={handleInit}
-            isLoading={loading}
+            onClick={onOpen}
           >
-            Initialize Repository
+            Run Puf Command
           </Button>
-          <Button
-            colorScheme="green"
-            onClick={handlePush}
-            isLoading={loading}
-          >
-            Push
-          </Button>
-          <Button
-            colorScheme="blue"
-            onClick={handlePull}
-            isLoading={loading}
-          >
-            Pull
-          </Button>
-        </HStack>
 
-        <VStack spacing={2} align="stretch">
-          <Text>Commit Changes:</Text>
-          <Input
-            placeholder="Enter commit message"
-            value={commitMessage}
-            onChange={(e) => setCommitMessage(e.target.value)}
-          />
-          <Button
-            colorScheme="green"
-            onClick={handleCommit}
-            isLoading={loading}
-          >
-            Commit
-          </Button>
-        </VStack>
+          <Modal isOpen={isOpen} onClose={onClose}>
+            <ModalOverlay />
+            <ModalContent>
+              <ModalHeader>Run Puf Command</ModalHeader>
+              <ModalCloseButton />
+              <ModalBody>
+                <VStack spacing={4} align="stretch">
+                  <FormControl>
+                    <FormLabel>Command</FormLabel>
+                    <Input
+                      value={command}
+                      onChange={(e) => setCommand(e.target.value)}
+                      placeholder="e.g., puf init"
+                    />
+                  </FormControl>
+                  <Button
+                    colorScheme="blue"
+                    onClick={handleCommand}
+                    isLoading={loading}
+                  >
+                    Execute
+                  </Button>
+                </VStack>
+              </ModalBody>
+            </ModalContent>
+          </Modal>
+        </Box>
 
-        <VStack spacing={2} align="stretch">
-          <Text>Create Branch:</Text>
-          <Input
-            placeholder="Enter new branch name"
-            value={newBranchName}
-            onChange={(e) => setNewBranchName(e.target.value)}
-          />
-          <Button
-            colorScheme="purple"
-            onClick={handleCreateBranch}
-            isLoading={loading}
-          >
-            Create Branch
-          </Button>
-        </VStack>
-
-        <VStack spacing={2} align="stretch">
-          <Text>Switch Branch:</Text>
-          <Select
-            placeholder="Select branch"
-            value={currentBranch}
-            onChange={(e) => setCurrentBranch(e.target.value)}
-          >
-            <option value="main">main</option>
-            <option value="development">development</option>
-            <option value="feature">feature</option>
-          </Select>
-          <Button
-            colorScheme="purple"
-            onClick={handleCheckout}
-            isLoading={loading}
-          >
-            Checkout
-          </Button>
-        </VStack>
-
-        <Box mt={4} p={4} borderWidth="1px" borderRadius="lg">
-          <Text mb={2}>Command Output:</Text>
+        <Box>
+          <Text fontSize="lg" fontWeight="bold" mb={2}>
+            Command Output
+          </Text>
           <Code whiteSpace="pre-wrap" p={2}>
             {commandOutput}
           </Code>
+        </Box>
+
+        <Box mt={4}>
+          <Text fontSize="lg" fontWeight="bold" mb={2}>
+            Getting Started
+          </Text>
+          <Text>
+            1. Install Puf on your system:
+          </Text>
+          <Code mt={1}>pip install puf</Code>
+
+          <Text mt={2}>
+            2. Initialize a repository:
+          </Text>
+          <Code mt={1}>puf init</Code>
+
+          <Text mt={2}>
+            3. Add a remote repository:
+          </Text>
+          <Code mt={1}>puf remote add origin https://puf.example.com/username/repo.git</Code>
+
+          <Text mt={2}>
+            4. Common Commands:
+          </Text>
+          <Code mt={1}># View status of your repository
+puf status</Code>
+          <Code mt={1}># View commit history
+puf log</Code>
+          <Code mt={1}># View differences
+puf diff</Code>
+          <Code mt={1}># List remotes
+puf remote -v</Code>
+
+          <Text mt={2}>
+            Note: This UI is a helper interface. You can also run Puf commands directly from your terminal.
+          </Text>
         </Box>
       </VStack>
     </Box>

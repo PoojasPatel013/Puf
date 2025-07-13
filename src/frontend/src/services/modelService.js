@@ -458,6 +458,23 @@ const modelService = {
       console.error('Error checking star status:', error);
       throw error;
     }
+  },
+
+  async executeCommand(command) {
+    try {
+      const response = await axios.post(`${API_URL}/api/cli/execute`, {
+        command,
+        cwd: null // Will be set to user's directory in backend
+      }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('mvc_token')}`
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error executing command:', error);
+      throw error;
+    }
   }
 };
 

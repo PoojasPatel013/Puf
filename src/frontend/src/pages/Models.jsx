@@ -31,7 +31,7 @@ import {
 } from '@chakra-ui/react';
 import { FiUpload, FiMoreVertical, FiDownload, FiGitBranch } from 'react-icons/fi';
 import { Link, useNavigate } from 'react-router-dom';
-import { modelService } from '../services/modelService';
+import modelService from '../services/modelService';
 
 export default function Models() {
   const [models, setModels] = useState([]);

@@ -37,7 +37,7 @@ import {
 import { FiPackage, FiGitBranch, FiGitPullRequest, FiTerminal, FiCopy, FiCode, FiGithub, FiUpload, FiBookOpen, FiChevronRight, FiStar, FiUsers, FiDownload } from 'react-icons/fi';
 import { Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { modelService } from '../services/modelService';
+import modelService from '../services/modelService';
 import {
   Chart as ChartJS,
   CategoryScale,

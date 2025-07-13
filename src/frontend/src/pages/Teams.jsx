@@ -22,7 +22,7 @@ import {
 } from '@chakra-ui/react';
 import { FiUsers, FiPlus, FiSearch, FiEdit, FiTrash } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
-import { modelService } from '../services/modelService';
+import modelService from '../services/modelService';
 
 export default function Teams() {
   const { user } = useAuth();
